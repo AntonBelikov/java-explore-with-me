@@ -29,6 +29,7 @@ public class UpdateEventUserRequest {
     private StateAction stateAction;
     @Size(min = 3, max = 120)
     private String title;
+
     public enum StateAction {
         SEND_TO_REVIEW,
         CANCEL_REVIEW
