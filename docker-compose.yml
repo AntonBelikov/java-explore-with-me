@@ -38,11 +38,20 @@ services:
       timeout: 5s
       retries: 10
   ewm-service:
-    image: eclipse-temurin:21-jre
+    build:
+      context: .
+      dockerfile: ewm-service/ewm-server/Dockerfile
     container_name: ewm-service
-    ports:
-      - "8080:8080"
     depends_on:
       ewm-db:
         condition: service_healthy
-    command: [ "sh", "-c", "echo 'ewm-service stub' && sleep infinity" ]
+      stats-server:
+        condition: service_started
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://ewm-db:5432/ewm
+      SPRING_DATASOURCE_USERNAME: ewm
+      SPRING_DATASOURCE_PASSWORD: ewm
+      STATS_SERVER_URL: http://stats-server:9090
+      STATS_APP_NAME: ewm-main-service
