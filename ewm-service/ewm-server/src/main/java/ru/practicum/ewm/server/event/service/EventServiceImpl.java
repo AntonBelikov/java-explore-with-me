@@ -142,7 +142,6 @@ public class EventServiceImpl implements EventService {
                     );
             }
         }
-        
         return EventMapper.toFullDto(event);
     }
 
