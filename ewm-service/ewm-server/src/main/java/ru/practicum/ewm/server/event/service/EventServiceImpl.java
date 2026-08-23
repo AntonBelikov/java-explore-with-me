@@ -142,10 +142,8 @@ public class EventServiceImpl implements EventService {
                     );
             }
         }
-
-
-        Event saved = eventRepository.save(event);
-        return EventMapper.toFullDto(saved);
+        
+        return EventMapper.toFullDto(event);
     }
 
     private void validateEventDateAtLeastTwoHoursFromNow(LocalDateTime eventDate) {

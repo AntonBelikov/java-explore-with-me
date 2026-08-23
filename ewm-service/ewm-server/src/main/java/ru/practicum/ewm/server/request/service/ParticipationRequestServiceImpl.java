@@ -100,8 +100,7 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
         }
 
         request.setStatus(RequestStatus.CANCELED);
-        ParticipationRequest saved = requestRepository.save(request);
-        return ParticipationRequestMapper.toDto(saved);
+        return ParticipationRequestMapper.toDto(request);
     }
 
     @Override
@@ -170,15 +169,12 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
 
             for (ParticipationRequest r : requests) {
                 r.setStatus(RequestStatus.CONFIRMED);
-            }
-            List<ParticipationRequest> saved = requestRepository.saveAll(requests);
-            for (ParticipationRequest r : saved) {
                 confirmedDtos.add(ParticipationRequestMapper.toDto(r));
             }
 
             if (limit > 0 && confirmed + requests.size() >= limit) {
                 Set<Long> justConfirmed = new HashSet<>();
-                for (ParticipationRequest r : saved) {
+                for (ParticipationRequest r : requests) {
                     justConfirmed.add(r.getId());
                 }
 
@@ -198,8 +194,7 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
                     }
 
                     if (!reallyReject.isEmpty()) {
-                        List<ParticipationRequest> rejectedSaved = requestRepository.saveAll(reallyReject);
-                        for (ParticipationRequest r : rejectedSaved) {
+                        for (ParticipationRequest r : reallyReject) {
                             rejectedDtos.add(ParticipationRequestMapper.toDto(r));
                         }
                     }
@@ -208,9 +203,6 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
         } else {
             for (ParticipationRequest r : requests) {
                 r.setStatus(RequestStatus.REJECTED);
-            }
-            List<ParticipationRequest> saved = requestRepository.saveAll(requests);
-            for (ParticipationRequest r : saved) {
                 rejectedDtos.add(ParticipationRequestMapper.toDto(r));
             }
         }

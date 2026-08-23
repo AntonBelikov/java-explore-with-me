@@ -118,13 +118,11 @@ public class AdminEventServiceImpl implements AdminEventService {
             applyStateAction(event, request.getStateAction());
         }
 
-        Event saved = eventRepository.save(event);
-
         long confirmed = metricsService.confirmedByEventIds(List.of(eventId)).getOrDefault(eventId, 0L);
         String uri = EventMetricsService.eventUri(eventId);
         long views = metricsService.viewsByUris(List.of(uri)).getOrDefault(uri, 0L);
 
-        return EventMapper.toFullDto(saved, confirmed, views);
+        return EventMapper.toFullDto(event, confirmed, views);
     }
 
     private void applyStateAction(Event event, UpdateEventAdminRequest.StateAction action) {
