@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface EndpointHitRepository extends JpaRepository<EndpointHitEntity, Long> {
-
     @Query("select new ru.practicum.stats.dto.ViewStatsDto(" +
             "h.app, " +
             "h.uri, " +
