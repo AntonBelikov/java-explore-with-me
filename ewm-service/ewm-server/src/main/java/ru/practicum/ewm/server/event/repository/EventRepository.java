@@ -24,7 +24,12 @@ public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecific
                             "WHERE e.state = 'PUBLISHED' " +
                             "  AND e.lat IS NOT NULL " +
                             "  AND e.lon IS NOT NULL " +
-                            "  AND distance_m(:centerLat, :centerLon, e.lat, e.lon) <= :radiusM " +
+                            "  AND distance_m(" +
+                            "        CAST(:centerLat AS double precision), " +
+                            "        CAST(:centerLon AS double precision), " +
+                            "        CAST(e.lat AS double precision), " +
+                            "        CAST(e.lon AS double precision)" +
+                            "      ) <= CAST(:radiusM AS double precision) " +
                             "ORDER BY e.event_date ASC",
             countQuery =
                     "SELECT count(*) " +
@@ -32,7 +37,12 @@ public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecific
                             "WHERE e.state = 'PUBLISHED' " +
                             "  AND e.lat IS NOT NULL " +
                             "  AND e.lon IS NOT NULL " +
-                            "  AND distance_m(:centerLat, :centerLon, e.lat, e.lon) <= :radiusM",
+                            "  AND distance_m(" +
+                            "        CAST(:centerLat AS double precision), " +
+                            "        CAST(:centerLon AS double precision), " +
+                            "        CAST(e.lat AS double precision), " +
+                            "        CAST(e.lon AS double precision)" +
+                            "      ) <= CAST(:radiusM AS double precision)",
             nativeQuery = true
     )
     Page<Event> findPublishedInRadius(@Param("centerLat") double centerLat,
