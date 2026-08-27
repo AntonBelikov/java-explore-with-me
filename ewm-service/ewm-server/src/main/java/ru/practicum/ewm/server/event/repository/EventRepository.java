@@ -22,27 +22,32 @@ public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecific
                     "SELECT * " +
                             "FROM events e " +
                             "WHERE e.state = 'PUBLISHED' " +
-                            "  AND e.lat IS NOT NULL " +
-                            "  AND e.lon IS NOT NULL " +
-                            "  AND distance_m(" +
-                            "    CAST(:centerLat AS double precision), CAST(:centerLon AS double precision), " +
-                            "    CAST(e.lat AS double precision), CAST(e.lon AS double precision)" +
-                            "  ) <= CAST(:radiusM AS double precision) " +
+                            " AND e.lat IS NOT NULL " +
+                            " AND e.lon IS NOT NULL " +
+                            " AND distance(" +
+                            " CAST(:centerLat AS double precision), " +
+                            " CAST(:centerLon AS double precision), " +
+                            " CAST(e.lat AS double precision), " +
+                            " CAST(e.lon AS double precision)" +
+                            " ) <= CAST(:radiusM AS double precision) / 1000 " +
                             "ORDER BY e.event_date ASC \n-- #pageable\n",
             countQuery =
                     "SELECT count(*) " +
                             "FROM events e " +
                             "WHERE e.state = 'PUBLISHED' " +
-                            "  AND e.lat IS NOT NULL " +
-                            "  AND e.lon IS NOT NULL " +
-                            "  AND distance_m(" +
-                            "    CAST(:centerLat AS double precision), CAST(:centerLon AS double precision), " +
-                            "    CAST(e.lat AS double precision), CAST(e.lon AS double precision)" +
-                            "  ) <= CAST(:radiusM AS double precision)",
+                            " AND e.lat IS NOT NULL " +
+                            " AND e.lon IS NOT NULL " +
+                            " AND distance(" +
+                            " CAST(:centerLat AS double precision), " +
+                            " CAST(:centerLon AS double precision), " +
+                            " CAST(e.lat AS double precision), " +
+                            " CAST(e.lon AS double precision)" +
+                            " ) <= CAST(:radiusM AS double precision) / 1000",
             nativeQuery = true
     )
-    Page<Event> findPublishedInRadius(@Param("centerLat") double centerLat,
-                                      @Param("centerLon") double centerLon,
-                                      @Param("radiusM") int radiusM,
-                                      Pageable pageable);
+    Page<Event> findPublishedInRadius(
+            @Param("centerLat") double centerLat,
+            @Param("centerLon") double centerLon,
+            @Param("radiusM") int radiusM,
+            Pageable pageable);
 }
