@@ -18,36 +18,44 @@ public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecific
     Optional<Event> findByIdAndInitiatorId(Long id, Long initiatorId);
 
     @Query(
-            value =
-                    "SELECT * " +
-                            "FROM events e " +
-                            "WHERE e.state = 'PUBLISHED' " +
-                            " AND e.lat IS NOT NULL " +
-                            " AND e.lon IS NOT NULL " +
-                            " AND distance(" +
-                            " CAST(:centerLat AS double precision), " +
-                            " CAST(:centerLon AS double precision), " +
-                            " CAST(e.lat AS double precision), " +
-                            " CAST(e.lon AS double precision)" +
-                            " ) <= CAST(:radiusM AS double precision) / 1000 " +
-                            "ORDER BY e.event_date ASC \n-- #pageable\n",
-            countQuery =
-                    "SELECT count(*) " +
-                            "FROM events e " +
-                            "WHERE e.state = 'PUBLISHED' " +
-                            " AND e.lat IS NOT NULL " +
-                            " AND e.lon IS NOT NULL " +
-                            " AND distance(" +
-                            " CAST(:centerLat AS double precision), " +
-                            " CAST(:centerLon AS double precision), " +
-                            " CAST(e.lat AS double precision), " +
-                            " CAST(e.lon AS double precision)" +
-                            " ) <= CAST(:radiusM AS double precision) / 1000",
+            value = """
+                SELECT *
+                FROM events e
+                WHERE e.state = 'PUBLISHED'
+                  AND e.lat IS NOT NULL
+                  AND e.lon IS NOT NULL
+                  AND 6371 * 2 * ASIN(
+                        SQRT(
+                            POWER(SIN(RADIANS(CAST(e.lat AS double precision) - :centerLat) / 2), 2) +
+                            COS(RADIANS(:centerLat)) *
+                            COS(RADIANS(CAST(e.lat AS double precision))) *
+                            POWER(SIN(RADIANS(CAST(e.lon AS double precision) - :centerLon) / 2), 2)
+                        )
+                  ) <= CAST(:radiusM AS double precision) / 1000
+                ORDER BY e.event_date ASC
+                -- #pageable
+                """,
+            countQuery = """
+                SELECT count(*)
+                FROM events e
+                WHERE e.state = 'PUBLISHED'
+                  AND e.lat IS NOT NULL
+                  AND e.lon IS NOT NULL
+                  AND 6371 * 2 * ASIN(
+                        SQRT(
+                            POWER(SIN(RADIANS(CAST(e.lat AS double precision) - :centerLat) / 2), 2) +
+                            COS(RADIANS(:centerLat)) *
+                            COS(RADIANS(CAST(e.lat AS double precision))) *
+                            POWER(SIN(RADIANS(CAST(e.lon AS double precision) - :centerLon) / 2), 2)
+                        )
+                  ) <= CAST(:radiusM AS double precision) / 1000
+                """,
             nativeQuery = true
     )
     Page<Event> findPublishedInRadius(
             @Param("centerLat") double centerLat,
             @Param("centerLon") double centerLon,
             @Param("radiusM") int radiusM,
-            Pageable pageable);
+            Pageable pageable
+    );
 }
